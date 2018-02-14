@@ -28,6 +28,10 @@ const NUM_MATCH_TO_WIN = 8;
 
 let startTime = new Date();
 
+let timeElapsed = 0;
+
+let intervalId = null;
+
 /*
  * Display the cards on the page
  *   - shuffle the list of cards using the provided "shuffle" method below
@@ -141,12 +145,22 @@ function checkCardMatch(cardNode) {
 }
 
 function incrementMoves() {
-   ++(document.querySelector('.moves').textContent);
+    ++(document.querySelector('.moves').textContent);
 }
 
 function refreshBoard() {
-   // Set moves to 0
-   document.querySelector('.moves').textContent = 0;
+    // Set moves to 0
+    document.querySelector('.moves').textContent = 0;
+
+    // Set timer to 0
+    document.querySelector('.time-elapsed').textContent = 0;
+
+    // Restart timer
+    intervalId = setInterval(function() {
+        ++timeElapsed;
+        document.querySelector('.time-elapsed').textContent = timeElapsed;
+    }, 1000);
+
 
    // reset board
    displayCards();
@@ -159,6 +173,10 @@ function checkWinningCondition() {
     if (matchedCardList.length === NUM_MATCH_TO_WIN) {
         // Player won
         console.log('won');
+        // Stop timer
+        if (null !== intervalId) {
+            clearInterval(intervalId);
+        }
         // Display the winning page
         displayWinningPage();
     }
@@ -170,18 +188,18 @@ function displayWinningPage() {
     document.querySelector('.num-move-took').textContent =
         document.querySelector('.moves').textContent;
 
-    // Calculate time slapsed
-    let endTime = new Date();
-    let timeDiff = endTime - startTime;
+    // // Calculate time slapsed
+    // let endTime = new Date();
+    // let timeDiff = endTime - startTime;
 
-    // Convert to second
-    timeDiff /= 1000;
-    timeDiff = Math.round(timeDiff);
+    // // Convert to second
+    // timeDiff /= 1000;
+    // timeDiff = Math.round(timeDiff);
 
-    console.log('time elapsed : ' + timeDiff);
+    // console.log('time elapsed : ' + timeDiff);
 
     document.querySelector('.time-took').textContent =
-        timeDiff + ' seconds';
+        timeElapsed + ' seconds';
 }
 
 function restartGame(e) {
