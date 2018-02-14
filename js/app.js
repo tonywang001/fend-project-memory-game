@@ -1,7 +1,7 @@
 /*
  * Create a list that holds all of your cards
  */
-let cardList = [
+const cardList = [
     'fa-diamond',
     'fa-paper-plane-o',
     'fa-anchor',
@@ -20,12 +20,18 @@ let cardList = [
     'fa-cube'
 ];
 
+let openCard = '';
+
+let matchedCardList = [];
+
 /*
  * Display the cards on the page
  *   - shuffle the list of cards using the provided "shuffle" method below
  *   - loop through each card and create its HTML
  *   - add each card's HTML to the page
  */
+
+ displayCards();
 
  function displayCards() {
      const deckNode = document.querySelector('.deck');
@@ -72,19 +78,74 @@ function shuffle(array) {
  *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
  */
 
- document.querySelector('.deck').addEventListener('click', handleClick);
+document.querySelector('.deck').addEventListener('click', handleClick);
+document.querySelector('.restart').addEventListener('click', refreshBoard);
 
- function handleClick(e) {
-     if (e.target.className == 'card') {
+function handleClick(e) {
+    if (e.target.className == 'card') {
         const className = (e.target.firstElementChild.className.split(' '))[1];
         showCard(e.target);
-     }
+        setTimeout(function() {
+            checkCardMatch(e.target);
+        }, 500);
+    }
+}
+
+function showCard(cardNode) {
+    cardNode.classList.add('open');
+    cardNode.classList.add('show');
+}
+
+function hideCard(cardNode) {
+    cardNode.classList.remove('open');
+    cardNode.classList.remove('show');
+}
+
+function checkCardMatch(cardNode) {
+    console.log('check called');
+    const className = (cardNode.firstElementChild.className.split(' '))[1];
+    if ('' === openCard) {
+        openCard = className;
+    } else {
+        if (openCard === className) {
+            // This is a match
+            matchedCardList.push(className);
+            const cardList = document.getElementsByClassName(className);
+            [].forEach.call(cardList, function(card) {
+                        card.parentElement.className = 'card match';
+                    });
+        } else {
+            // No match
+            const cardList = document.getElementsByClassName(className);
+            const openCardList = document.getElementsByClassName(openCard);
+
+            console.log(cardList);
+            // TODO: refactor this piece
+            [].forEach.call(cardList, function(card) {
+                hideCard(card.parentElement);
+            });
+            [].forEach.call(openCardList, function(card) {
+                hideCard(card.parentElement);
+            });
+            incrementMoves();
+        }
+        openCard = '';
+    }
  }
 
- function showCard(cardNode) {
-     cardNode.classList.add('open');
-     cardNode.classList.add('show');
-    // const className = (cardNode.firstElementChild.className.split(' '))[1];
+ function incrementMoves() {
+    //  let moves = document.querySelector('.moves').textContent;
+    //  ++moves;
+    //  let moves = document.querySelector('.moves').textContent;
+    ++(document.querySelector('.moves').textContent);
+ }
+
+ function refreshBoard() {
+    // Set moves to 0
+    document.querySelector('.moves').textContent = 0;
+
+    // reset board
+    displayCards();
  }
 
 
