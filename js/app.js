@@ -24,6 +24,10 @@ let openCard = '';
 
 let matchedCardList = [];
 
+const NUM_MATCH_TO_WIN = 8;
+
+let startTime = new Date();
+
 /*
  * Display the cards on the page
  *   - shuffle the list of cards using the provided "shuffle" method below
@@ -31,25 +35,26 @@ let matchedCardList = [];
  *   - add each card's HTML to the page
  */
 
- displayCards();
+refreshBoard();
+//displayCards();
 
- function displayCards() {
-     const deckNode = document.querySelector('.deck');
+function displayCards() {
+    const deckNode = document.querySelector('.deck');
 
-     // Clean up current deck
-     while(deckNode.firstChild) {
-         deckNode.removeChild(deckNode.firstChild);
-     }
+    // Clean up current deck
+    while(deckNode.firstChild) {
+        deckNode.removeChild(deckNode.firstChild);
+    }
 
-     shuffle(cardList).forEach(function(card) {
-         const listNode = document.createElement('li');
-         const iNode = document.createElement('i');
-         listNode.className = 'card';
-         iNode.className = 'fa ' + card;
-         listNode.appendChild(iNode);
-         deckNode.appendChild(listNode);
-     });
- }
+    shuffle(cardList).forEach(function(card) {
+        const listNode = document.createElement('li');
+        const iNode = document.createElement('i');
+        listNode.className = 'card';
+        iNode.className = 'fa ' + card;
+        listNode.appendChild(iNode);
+        deckNode.appendChild(listNode);
+    });
+}
 
 // Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
@@ -80,6 +85,7 @@ function shuffle(array) {
 
 document.querySelector('.deck').addEventListener('click', handleClick);
 document.querySelector('.restart').addEventListener('click', refreshBoard);
+document.querySelector('.restart-button').addEventListener('click', restartGame);
 
 function handleClick(e) {
     if (e.target.className == 'card') {
@@ -87,6 +93,7 @@ function handleClick(e) {
         showCard(e.target);
         setTimeout(function() {
             checkCardMatch(e.target);
+            checkWinningCondition();
         }, 500);
     }
 }
@@ -131,21 +138,59 @@ function checkCardMatch(cardNode) {
         }
         openCard = '';
     }
- }
+}
 
- function incrementMoves() {
-    //  let moves = document.querySelector('.moves').textContent;
-    //  ++moves;
-    //  let moves = document.querySelector('.moves').textContent;
-    ++(document.querySelector('.moves').textContent);
- }
+function incrementMoves() {
+   ++(document.querySelector('.moves').textContent);
+}
 
- function refreshBoard() {
-    // Set moves to 0
-    document.querySelector('.moves').textContent = 0;
+function refreshBoard() {
+   // Set moves to 0
+   document.querySelector('.moves').textContent = 0;
 
-    // reset board
-    displayCards();
- }
+   // reset board
+   displayCards();
 
+   // reset timer
+   startTime = new Date();
+}
 
+function checkWinningCondition() {
+    if (matchedCardList.length === NUM_MATCH_TO_WIN) {
+        // Player won
+        console.log('won');
+        // Display the winning page
+        displayWinningPage();
+    }
+}
+
+function displayWinningPage() {
+    document.querySelector('.winning-page').style.display = 'block';
+    document.querySelector('.container').style.display = 'none';
+    document.querySelector('.num-move-took').textContent =
+        document.querySelector('.moves').textContent;
+
+    // Calculate time slapsed
+    let endTime = new Date();
+    let timeDiff = endTime - startTime;
+
+    // Convert to second
+    timeDiff /= 1000;
+    timeDiff = Math.round(timeDiff);
+
+    console.log('time elapsed : ' + timeDiff);
+
+    document.querySelector('.time-took').textContent =
+        timeDiff + ' seconds';
+}
+
+function restartGame(e) {
+    console.log('restart button click -> ' + e.target);
+    displayGame();
+}
+
+function displayGame() {
+    document.querySelector('.winning-page').style.display = 'none';
+    document.querySelector('.container').style.display = 'flex';
+    refreshBoard();
+}
