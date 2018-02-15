@@ -32,6 +32,8 @@ let timeElapsed = 0;
 
 let intervalId = null;
 
+let numStars = 0;
+
 /*
  * Display the cards on the page
  *   - shuffle the list of cards using the provided "shuffle" method below
@@ -139,6 +141,7 @@ function checkCardMatch(cardNode) {
                 hideCard(card.parentElement);
             });
             incrementMoves();
+            checkStars();
         }
         openCard = '';
     }
@@ -153,20 +156,29 @@ function refreshBoard() {
     document.querySelector('.moves').textContent = 0;
 
     // Set timer to 0
+    timeElapsed = 0;
     document.querySelector('.time-elapsed').textContent = 0;
 
     // Restart timer
+    if (null !== intervalId) {
+        clearInterval(intervalId);
+    }
+
     intervalId = setInterval(function() {
         ++timeElapsed;
         document.querySelector('.time-elapsed').textContent = timeElapsed;
     }, 1000);
 
+    // Reset num stars
+    numStars = 3;
 
-   // reset board
-   displayCards();
+    refreshStars();
 
-   // reset timer
-   startTime = new Date();
+    // reset board
+    displayCards();
+
+    // reset timer
+    startTime = new Date();
 }
 
 function checkWinningCondition() {
@@ -211,4 +223,34 @@ function displayGame() {
     document.querySelector('.winning-page').style.display = 'none';
     document.querySelector('.container').style.display = 'flex';
     refreshBoard();
+}
+
+function checkStars() {
+
+    const numMoves = document.querySelector('.moves').textContent;
+
+    if (numMoves >= 30) {
+        numStars = 0;
+    } else if (numMoves >= 20) {
+        numStars = 1;
+    } else if (numMoves >= 10) {
+        numStars = 2;
+    } else {
+        numStars = 3;
+    }
+
+    refreshStars();
+
+}
+
+function refreshStars() {
+    const childNodes = document.querySelector('.stars').children;
+    for (let i=0; i<numStars; ++i) {
+        console.log('i : ' + i + ' childNode i : ' + childNodes[i]);
+        childNodes[i].firstChild.className = 'fa fa-star';
+    }
+
+    for (let i=2; i>=numStars; --i) {
+        childNodes[i].firstChild.className = 'fa fa-star-o';
+    }
 }
