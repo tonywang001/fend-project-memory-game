@@ -1,6 +1,4 @@
-/*
- * Create a list that holds all of your cards
- */
+// list that holds all card
 const cardList = [
     'fa-diamond',
     'fa-paper-plane-o',
@@ -20,30 +18,92 @@ const cardList = [
     'fa-cube'
 ];
 
-let openCard = '';
-
+// list holding matched cards
 let matchedCardList = [];
 
-const NUM_MATCH_TO_WIN = 8;
+// indicating the open card yet matched
+let openCard = '';
 
-let startTime = new Date();
+// number of matches in order to win
+const NUM_MATCH_TO_WIN = 8;
 
 let timeElapsed = 0;
 
+// interval event id used to clear interval event
 let intervalId = null;
 
+// start rating
 let numStars = 0;
 
 /*
- * Display the cards on the page
- *   - shuffle the list of cards using the provided "shuffle" method below
- *   - loop through each card and create its HTML
- *   - add each card's HTML to the page
+ * Setting up all event listener
  */
+// Listen on card click
+document.querySelector('.deck').addEventListener('click', handleCardClick);
+// listen on restart button
+document.querySelector('.restart').addEventListener('click', refreshBoard);
+// listen on play again button
+document.querySelector('.restart-button').addEventListener('click', restartGame);
 
+/*
+ * Render the board
+ */
 refreshBoard();
-//displayCards();
 
+/*
+ * Handle card click event
+ */
+function handleCardClick(e) {
+    if (e.target.className == 'card') {
+        const className = (e.target.firstElementChild.className.split(' '))[1];
+        showCard(e.target);
+        setTimeout(function() {
+            checkCardMatch(e.target);
+            checkWinningCondition();
+        }, 500);
+    }
+}
+
+/* 
+ * function to setup the board and all the variables
+ */
+function refreshBoard() {
+    // Set moves to 0
+    document.querySelector('.moves').textContent = 0;
+
+    // Set timer to 0
+    timeElapsed = 0;
+    document.querySelector('.time-elapsed').textContent = 0;
+
+    // Restart timer
+    if (null !== intervalId) {
+        clearInterval(intervalId);
+    }
+
+    intervalId = setInterval(function() {
+        ++timeElapsed;
+        document.querySelector('.time-elapsed').textContent = timeElapsed;
+    }, 1000);
+
+    // Reset num stars
+    numStars = 3;
+
+    refreshStars();
+
+    // reset board
+    displayCards();
+}
+
+/*
+ * function to restart the game
+ */
+function restartGame(e) {
+    displayGame();
+}
+
+/*
+ * function to display the board
+ */
 function displayCards() {
     const deckNode = document.querySelector('.deck');
 
@@ -62,7 +122,10 @@ function displayCards() {
     });
 }
 
-// Shuffle function from http://stackoverflow.com/a/2450976
+/*
+ * function to shuffle the given array from 
+ * http://stackoverflow.com/a/2450976
+ */
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -77,43 +140,25 @@ function shuffle(array) {
     return array;
 }
 
-
 /*
- * set up the event listener for a card. If a card is clicked:
- *  - display the card's symbol (put this functionality in another function that you call from this one)
- *  - add the card to a *list* of "open" cards (put this functionality in another function that you call from this one)
- *  - if the list already has another card, check to see if the two cards match
- *    + if the cards do match, lock the cards in the open position (put this functionality in another function that you call from this one)
- *    + if the cards do not match, remove the cards from the list and hide the card's symbol (put this functionality in another function that you call from this one)
- *    + increment the move counter and display it on the page (put this functionality in another function that you call from this one)
- *    + if all cards have matched, display a message with the final score (put this functionality in another function that you call from this one)
+ * functino to show the card
  */
-
-document.querySelector('.deck').addEventListener('click', handleClick);
-document.querySelector('.restart').addEventListener('click', refreshBoard);
-document.querySelector('.restart-button').addEventListener('click', restartGame);
-
-function handleClick(e) {
-    if (e.target.className == 'card') {
-        const className = (e.target.firstElementChild.className.split(' '))[1];
-        showCard(e.target);
-        setTimeout(function() {
-            checkCardMatch(e.target);
-            checkWinningCondition();
-        }, 500);
-    }
-}
-
 function showCard(cardNode) {
     cardNode.classList.add('open');
     cardNode.classList.add('show');
 }
 
+/*
+ * functino to hide the card
+ */
 function hideCard(cardNode) {
     cardNode.classList.remove('open');
     cardNode.classList.remove('show');
 }
 
+/*
+ * check whether theres a card match
+ */
 function checkCardMatch(cardNode) {
     console.log('check called');
     const className = (cardNode.firstElementChild.className.split(' '))[1];
@@ -147,40 +192,16 @@ function checkCardMatch(cardNode) {
     }
 }
 
+/*
+ * Imcrement the move counter
+ */
 function incrementMoves() {
     ++(document.querySelector('.moves').textContent);
 }
 
-function refreshBoard() {
-    // Set moves to 0
-    document.querySelector('.moves').textContent = 0;
-
-    // Set timer to 0
-    timeElapsed = 0;
-    document.querySelector('.time-elapsed').textContent = 0;
-
-    // Restart timer
-    if (null !== intervalId) {
-        clearInterval(intervalId);
-    }
-
-    intervalId = setInterval(function() {
-        ++timeElapsed;
-        document.querySelector('.time-elapsed').textContent = timeElapsed;
-    }, 1000);
-
-    // Reset num stars
-    numStars = 3;
-
-    refreshStars();
-
-    // reset board
-    displayCards();
-
-    // reset timer
-    startTime = new Date();
-}
-
+/*
+ * check whether user has won
+ */
 function checkWinningCondition() {
     if (matchedCardList.length === NUM_MATCH_TO_WIN) {
         // Player won
@@ -194,37 +215,32 @@ function checkWinningCondition() {
     }
 }
 
+/*
+ * function to display the winning page
+ */
 function displayWinningPage() {
     document.querySelector('.winning-page').style.display = 'block';
     document.querySelector('.container').style.display = 'none';
     document.querySelector('.num-move-took').textContent =
         document.querySelector('.moves').textContent;
 
-    // // Calculate time slapsed
-    // let endTime = new Date();
-    // let timeDiff = endTime - startTime;
-
-    // // Convert to second
-    // timeDiff /= 1000;
-    // timeDiff = Math.round(timeDiff);
-
-    // console.log('time elapsed : ' + timeDiff);
-
     document.querySelector('.time-took').textContent =
         timeElapsed + ' seconds';
+
 }
 
-function restartGame(e) {
-    console.log('restart button click -> ' + e.target);
-    displayGame();
-}
-
+/*
+ * functino to render the game board
+ */
 function displayGame() {
     document.querySelector('.winning-page').style.display = 'none';
     document.querySelector('.container').style.display = 'flex';
     refreshBoard();
 }
 
+/*
+ * logic to determine star rating
+ */
 function checkStars() {
 
     const numMoves = document.querySelector('.moves').textContent;
@@ -243,6 +259,9 @@ function checkStars() {
 
 }
 
+/*
+ * function to render stars
+ */
 function refreshStars() {
     const childNodes = document.querySelector('.stars').children;
     for (let i=0; i<numStars; ++i) {
