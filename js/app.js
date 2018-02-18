@@ -61,6 +61,13 @@ function handleCardClick(e) {
             checkCardMatch(e.target);
             checkWinningCondition();
         }, 500);
+
+        if (null === intervalId) {
+            intervalId = setInterval(function() {
+                ++timeElapsed;
+                document.querySelector('.time-elapsed').textContent = timeElapsed;
+            }, 1000);
+        }
     }
 }
 
@@ -78,15 +85,14 @@ function refreshBoard() {
     // Restart timer
     if (null !== intervalId) {
         clearInterval(intervalId);
+        intervalId = null;
     }
-
-    intervalId = setInterval(function() {
-        ++timeElapsed;
-        document.querySelector('.time-elapsed').textContent = timeElapsed;
-    }, 1000);
 
     // Reset num stars
     numStars = 3;
+
+    // Reset matched card list
+    matchedCardList = [];
 
     refreshStars();
 
@@ -227,6 +233,8 @@ function displayWinningPage() {
     document.querySelector('.time-took').textContent =
         timeElapsed + ' seconds';
 
+    document.querySelector('.numStars').textContent = numStars;
+
 }
 
 /*
@@ -245,9 +253,7 @@ function checkStars() {
 
     const numMoves = document.querySelector('.moves').textContent;
 
-    if (numMoves >= 30) {
-        numStars = 0;
-    } else if (numMoves >= 20) {
+    if (numMoves >= 20) {
         numStars = 1;
     } else if (numMoves >= 10) {
         numStars = 2;
